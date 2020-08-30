@@ -1,6 +1,0 @@
-input.txt.1 	Loesung: 4 		Pfad: 1, 2, 3, 4
-input.txt.2 	Loesung: 16 	Pfad: 1, 2, 5, 9, 10
-input.txt.3 	Loesung: 16 	Pfad: 1, 2, 5, 9, 10
-input.txt.100 	Loesung: 122 	Pfad: 1, 48, 4, 26, 100
-input.txt.200 	Loesung: 50800 	Pfad: 1, 60, 173, 200
-input.txt.1000 	Loesung: 69 	Pfad: 1, 121, 724, 304, 879, 552, 102, 1000
