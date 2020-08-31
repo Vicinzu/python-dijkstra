@@ -18,6 +18,14 @@ class Frontier(ABC):
         pass
 
     @abstractmethod
+    def getLength(self) -> int:
+        pass
+
+    @abstractmethod
+    def isEmpty(self) -> bool:
+        pass
+
+    @abstractmethod
     def getMinDistanceVertex(self) -> (int, float):
         pass
 

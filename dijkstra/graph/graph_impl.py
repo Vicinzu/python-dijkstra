@@ -1,5 +1,5 @@
 from math import inf
-from typing import List
+from typing import List, Tuple
 
 from .graph import Graph
 from .graph_util import _GraphInputData
@@ -51,3 +51,15 @@ class GraphMatrix(Graph):
             raise ValueError('Invalid toVertexId: {}'.format(toVertexId))
 
         return self.__weightMatrix[fromVertexId-1][toVertexId-1]
+
+    def getEdges(self, fromVertexId) -> List[Tuple[int, float]]:
+        if fromVertexId is None or fromVertexId<1 or fromVertexId>self.__numVertex:
+            raise ValueError('Invalid fromVertexId: {}'.format(fromVertexId))
+
+        results:List[(int, float)] = []
+        for toVertexId, weight in enumerate(self.__weightMatrix[fromVertexId-1]):
+            if weight < inf:
+                results.append((toVertexId+1, weight))
+
+        return results
+

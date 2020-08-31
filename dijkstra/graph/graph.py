@@ -1,7 +1,7 @@
 import errno
 import os.path
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Tuple
 
 from .graph_util import *
 from .graph_util import _FileLineWrapper, _EdgeInputData, _GraphInputData
@@ -34,6 +34,10 @@ class Graph(ABC):
 
     @abstractmethod
     def getWeight(self, fromVertexId, toVertexId) -> float:
+        pass
+
+    @abstractmethod
+    def getEdges(self, fromVertexId) -> List[Tuple[int, float]]:
         pass
 
     @staticmethod

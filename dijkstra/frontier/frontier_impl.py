@@ -8,6 +8,7 @@ from .frontier import Frontier
 
 
 class FrontierList(Frontier):
+    __numVertex: int
     __distances:Distance
     __elements:List[int]
 
@@ -17,8 +18,9 @@ class FrontierList(Frontier):
         elif distances is None:
             raise ValueError('Invalid distances.')
         
-        self.__elements=List[int]
-        self.__elements.append(graph.getStartVertex)
+        self.__numVertex=graph.getNumVertex()
+        self.__elements=[]
+        self.__elements.append(graph.getStartVertexId())
         self.__distances=distances
 
     def addVertex(self, vertexId:int):
@@ -27,11 +29,20 @@ class FrontierList(Frontier):
 
         self.__elements.append(vertexId)
 
-    def removeVertex(self, vertexId:int):
+    def getLength(self) -> int:
+        return len(self.__elements)
+
+    def isEmpty(self) -> bool:
+        return not self.__elements
+
+    def removeVertex(self, vertexId:int) -> bool:
         if vertexId is None or vertexId<1 or vertexId>self.__numVertex:
             raise ValueError('Invalid vertexId: {}'.format(vertexId))
 
-        self.__elements.remove(vertexId)
+        try:
+            self.__elements.remove(vertexId)
+        except ValueError:
+            pass
 
     def getMinDistanceVertex(self) -> (int, float):
         minDistanceVertexId:int=None
