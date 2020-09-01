@@ -2,25 +2,25 @@ import unittest
 from math import inf
 
 from dijkstra.predecessor import *
-from tests.test_graphs import TestGraphMatrix
+from tests.test_graphs import Graph, getTestGraphInstance
 
 
 class TestPredecessorList(unittest.TestCase):
     @staticmethod
     def generatePredecessorTestData() -> Predecessor:
-        g: graph = TestGraphMatrix.generateTestGraphInputData()
+        g: Graph = getTestGraphInstance()
         p: Predecessor = PredecessorList(g)
         p.setPredecessor(2, 1)
         p.setPredecessor(3, 2)
         return p
 
-    def testDistanceList_Get(self):
+    def testPredecessorList_Get(self):
         predecessors: Predecessor = self.generatePredecessorTestData()
         self.assertEqual(predecessors.getPredecessor(1), None)
         self.assertEqual(predecessors.getPredecessor(2), 1)
         self.assertEqual(predecessors.getPredecessor(3), 2)
 
-    def testDistanceList_Set(self):
+    def testPredecessorList_Set(self):
         predecessors: Predecessor = self.generatePredecessorTestData()
         # Assign new predecessor for vertex with already known predecessor
         self.assertEqual(predecessors.getPredecessor(3), 2)

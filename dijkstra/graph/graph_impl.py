@@ -63,3 +63,61 @@ class GraphMatrix(Graph):
                 results.append((toVertexId+1, weight))
 
         return results
+
+
+class GraphList(Graph):
+    __numVertex: int
+    __numEdge: int
+    __startVertexId: int
+    __endVertexId: int
+    __weightList: List[List[Tuple[int, float]]]
+
+    def __init__(self, input: str):
+        graphData: _GraphInputData
+        if(isinstance(input, str)):
+            graphData = super()._readFile(input)
+        elif isinstance(input, _GraphInputData):
+            graphData = input
+        else:
+            ValueError('Invalid input data.')
+
+        self.__initWithData(graphData)
+
+    def __initWithData(self, graphData: _GraphInputData):
+        self.__numVertex = graphData.numVertex
+        self.__numEdge = graphData.numEdge
+        self.__startVertexId = graphData.startVertexId
+        self.__endVertexId = graphData.endVertexId
+        self.__weightList = [[] for i in range(graphData.numVertex)]
+        for ed in graphData.edgeData:
+             self.__weightList[ed.vertexFrom-1].append((ed.vertexTo, ed.weight))
+
+    def getNumVertex(self) -> int:
+        return self.__numVertex
+
+    def getNumEdge(self) -> int:
+        return self.__numEdge
+
+    def getStartVertexId(self) -> int:
+        return self.__startVertexId
+
+    def getEndVertexId(self) -> int:
+        return self.__endVertexId
+
+    def getWeight(self, fromVertexId, toVertexId) -> float:
+        if fromVertexId is None or fromVertexId < 1 or fromVertexId > self.__numVertex:
+            raise ValueError('Invalid fromVertexId: {}'.format(fromVertexId))
+        elif toVertexId is None or toVertexId < 1 or toVertexId > self.__numVertex:
+            raise ValueError('Invalid toVertexId: {}'.format(toVertexId))
+
+        for (edgeToVertexId, edgeWeight) in self.__weightList[fromVertexId-1]:
+            if(edgeToVertexId == toVertexId):
+                return edgeWeight
+        
+        return inf
+
+    def getEdges(self, fromVertexId) -> List[Tuple[int, float]]:
+        if fromVertexId is None or fromVertexId < 1 or fromVertexId > self.__numVertex:
+            raise ValueError('Invalid fromVertexId: {}'.format(fromVertexId))
+
+        return self.__weightList[fromVertexId-1]

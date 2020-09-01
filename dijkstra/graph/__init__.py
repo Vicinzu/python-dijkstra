@@ -1,2 +1,2 @@
 from .graph import Graph
-from .graph_impl import GraphMatrix
+from .graph_impl import GraphMatrix, GraphList

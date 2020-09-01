@@ -3,14 +3,14 @@ from math import inf
 
 from dijkstra.distance import *
 from dijkstra.frontier import *
-from tests.test_graphs import TestGraphMatrix
+from tests.test_graphs import Graph, getTestGraphInstance
 
 
 
 class TestFrontierList(unittest.TestCase):
     @staticmethod
     def generateFrontierTestData() -> Frontier:
-        g: graph = TestGraphMatrix.generateTestGraphInputData()
+        g: Graph = getTestGraphInstance()
         d: Distance = DistanceList(g)
         d.setDistance(1,0)
         d.setDistance(2,1)

@@ -35,7 +35,7 @@ class Dijkstra:
     __duration: time
 
     def __init__(self, instanceFilePath: str):
-        self.__graph = GraphMatrix(instanceFilePath)
+        self.__graph = GraphList(instanceFilePath)
         self.__predecessors = PredecessorList(self.__graph)
         self.__distances = DistanceList(self.__graph)
         self.__frontier = FrontierList(self.__graph, self.__distances)
