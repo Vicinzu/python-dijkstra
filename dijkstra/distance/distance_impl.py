@@ -16,7 +16,6 @@ class DistanceList(Distance):
 
         self.__numVertex = graph.getNumVertex()
         self.__distances = [inf for p in range(graph.getNumVertex())]
-        self.setDistance(graph.getStartVertexId(), 0)
 
     def getDistance(self, vertexId: int) -> int:
         if vertexId is None or vertexId < 1 or vertexId > self.__numVertex:

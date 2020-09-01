@@ -1,51 +1,98 @@
-from typing import List
+import time
+from dataclasses import dataclass
+from math import inf
+from typing import List, Tuple
 
-from dijkstra.graph import *
-from dijkstra.predecessor import *
 from dijkstra.distance import *
 from dijkstra.frontier import *
+from dijkstra.graph import *
+from dijkstra.predecessor import *
+
 
 @dataclass
 class DijkstraSolution:
-    costs: float
-    path: List[int]
+    distance: float
+    path: Tuple[int]
+    duration: float
+
+    def __init__(self):
+        self.distance = inf
+        self.path = []
+        self.duration = 0
+
+    def getFormatedPath(self) -> str:
+        if not self.path:
+            return ''
+
+        return ' -> '.join(map(str, self.path))
+
 
 class Dijkstra:
     __graph: Graph
     __predecessors: Predecessor
     __distances: Distance
     __frontier: Frontier
+    __duration: time
 
-    def __init__(self, instanceFilePath: string):
+    def __init__(self, instanceFilePath: str):
         self.__graph = GraphMatrix(instanceFilePath)
         self.__predecessors = PredecessorList(self.__graph)
         self.__distances = DistanceList(self.__graph)
         self.__frontier = FrontierList(self.__graph, self.__distances)
+        self.__duration = 0
 
     def run(self):
+        startTime = time.time()
+        self.__frontier.addVertex(self.__graph.getStartVertexId())
+        self.__frontier.diminishDistance(
+            self.__graph.getStartVertexId(), inf, 0)
         while(not self.__frontier.isEmpty()):
             # get next minimum vertex
-            minDistanceVertex: (int, float) = self.__frontier.getMinDistanceVertex()
-            currentVertexId: int = minDistanceVertex[0]
+            (currentVertexId, currentDistance) = self.__frontier.getMinDistanceVertex()
 
             # remove minimum vertex from frontier
             self.__frontier.removeVertex(currentVertexId)
 
-            edges:List[Tuple[int, float]] = self.__graph.getEdges(currentVertexId)
+            edges: List[Tuple[int, float]] = self.__graph.getEdges(
+                currentVertexId)
             for (toVertexId, weight) in edges:
-                self.analyzeNewEdge(minDistanceVertex[1], toVertexId, weight)
+                self.__analyzeNewEdge(
+                    currentVertexId, currentDistance, toVertexId, weight)
 
-        #TODO Provisorial.
-        print('Solution from {} to {} with distnace {}.'.format(self.__graph.getStartVertexId(), self.__graph.getEndVertexId(), self.__distances.getDistance(self.__graph.getStartVertexId())))
+        self.__duration = (time.time() - startTime)*1000
 
-    def analyzeNewEdge(self, currentVertexId:int, currentDistance:float, toVertexId:int, weight:float):
+    def hasSolution(self):
+        return self.__distances.getDistance(self.__graph.getEndVertexId()) < inf
+
+    def getSolution(self) -> DijkstraSolution:
+        solution: DijkstraSolution = DijkstraSolution()
+
+        if self.hasSolution():
+            solution.distance = self.__distances.getDistance(
+                self.__graph.getEndVertexId())
+            solution.path = self.__getPath()
+            solution.duration = self.__duration
+
+        return solution
+
+    def __analyzeNewEdge(self, currentVertexId: int, currentDistance: float, toVertexId: int, weight: float):
         newDistance = currentDistance + weight
         oldDistance = self.__distances.getDistance(toVertexId)
         if newDistance < oldDistance:
-            self.__predecessors.setPredecessor(currentVertexId)
-            self.__frontier.diminishDistance(toVertexId, oldDistance, newDistance)
+            self.__predecessors.setPredecessor(toVertexId, currentVertexId)
+            self.__frontier.diminishDistance(
+                toVertexId, oldDistance, newDistance)
             self.__frontier.addVertex(toVertexId)
 
-    def getSolution(self) -> DijkstraSolution:
-        #TODO Missing implementation.
-        pass
+    def __getPath(self) -> Tuple[int]:
+        result: List[int] = []
+        currentNode: int = self.__graph.getEndVertexId()
+        while currentNode:
+            result.insert(0, currentNode)
+            currentNode = self.__predecessors.getPredecessor(currentNode)
+
+        # if no path has been found (only end node is in list), then return an empty list
+        if len(result) == 1:
+            result.clear()
+
+        return tuple(result)

@@ -20,7 +20,6 @@ class FrontierList(Frontier):
         
         self.__numVertex=graph.getNumVertex()
         self.__elements=[]
-        self.__elements.append(graph.getStartVertexId())
         self.__distances=distances
 
     def addVertex(self, vertexId:int):
