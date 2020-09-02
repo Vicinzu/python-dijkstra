@@ -1,69 +1,79 @@
 import unittest
+from abc import ABC, abstractmethod
 from math import inf
 
 from dijkstra.distance import *
 from dijkstra.frontier import *
-from tests.test_graphs import Graph, getTestGraphInstance
+from tests.test_graphs import Graph, TestGraphList
 
 
+class TestFrontierGeneral(ABC):
+    @classmethod
+    def __setDistancesTestData(cls, distances: Distance):
+        distances.setDistance(1, 0)
+        distances.setDistance(2, 1)
+        distances.setDistance(3, 2)
+        distances.setDistance(4, 3)
 
-class TestFrontierList(unittest.TestCase):
-    @staticmethod
-    def generateFrontierTestData() -> Frontier:
-        g: Graph = getTestGraphInstance()
-        d: Distance = DistanceList(g)
-        d.setDistance(1,0)
-        d.setDistance(2,1)
-        d.setDistance(3,2)
-        d.setDistance(4,3)
-        f: Frontier = FrontierList(g, d)
+    @classmethod
+    @abstractmethod
+    def _initFrontierImpl(cls, graph: Graph, distances: Distance) -> Frontier:
+        pass
 
-        return f
+    @classmethod
+    def getTestFrontierInstance(cls) -> Frontier:
+        graph = TestGraphList.getTestGraphInstance()
+        distances = DistanceList(graph)
+        cls.__setDistancesTestData(distances)
+        return cls._initFrontierImpl(graph, distances)
 
-    def assertMinDistance(self, frontier, expectedVertexId, expectedDistance):
-        minDistanceVertex:(int,float)=frontier.getMinDistanceVertex()
-        self.assertEqual(minDistanceVertex[0],expectedVertexId)
-        self.assertEqual(minDistanceVertex[1],expectedDistance)
-
-    def testDistanceList_Length(self):
-        frontier: Frontier = self.generateFrontierTestData()
-        self.assertEqual(frontier.getLength(),0)
+    def testFrontier_Length(self):
+        frontier: Frontier = self.getTestFrontierInstance()
+        self.assertEqual(frontier.getLength(), 0)
         frontier.addVertex(1)
-        self.assertEqual(frontier.getLength(),1)
+        self.assertEqual(frontier.getLength(), 1)
 
-    def testDistanceList_Length(self):
-        frontier: Frontier = self.generateFrontierTestData()
-        self.assertEqual(frontier.isEmpty(),True)
+    def testFrontier_Length(self):
+        frontier: Frontier = self.getTestFrontierInstance()
+        self.assertEqual(frontier.isEmpty(), True)
         frontier.addVertex(1)
-        self.assertEqual(frontier.isEmpty(),False)
+        self.assertEqual(frontier.isEmpty(), False)
 
-    def testDistanceList_Add(self):
-        frontier: Frontier = self.generateFrontierTestData()
-        self.assertEqual(frontier.getLength(),0)        
+    def testFrontier_Add(self):
+        frontier: Frontier = self.getTestFrontierInstance()
+        self.assertEqual(frontier.getLength(), 0)
         frontier.addVertex(1)
-        self.assertEqual(frontier.getLength(),1)
+        self.assertEqual(frontier.getLength(), 1)
 
-    def testDistanceList_Remove(self):
-        frontier: Frontier = self.generateFrontierTestData()
+    def testFrontier_Remove(self):
+        frontier: Frontier = self.getTestFrontierInstance()
         frontier.addVertex(1)
-        self.assertEqual(frontier.getLength(),1)        
+        self.assertEqual(frontier.getLength(), 1)
         frontier.removeVertex(1)
-        self.assertEqual(frontier.getLength(),0)
+        self.assertEqual(frontier.getLength(), 0)
 
-    def testDistanceList_MinDistance(self):
-        frontier: Frontier = self.generateFrontierTestData()
-        self.assertMinDistance(frontier, None, inf)
+    def __assertMinDistance(self, frontier, expectedVertexId, expectedDistance):
+        minDistanceVertex: (int, float) = frontier.getMinDistanceVertex()
+        self.assertEqual(minDistanceVertex[0], expectedVertexId)
+        self.assertEqual(minDistanceVertex[1], expectedDistance)
+
+    def testFrontier_MinDistance(self):
+        frontier: Frontier = self.getTestFrontierInstance()
+        self.__assertMinDistance(frontier, None, inf)
         frontier.addVertex(3)
-        self.assertMinDistance(frontier, 3, 2)
+        self.__assertMinDistance(frontier, 3, 2)
         frontier.addVertex(2)
-        self.assertMinDistance(frontier, 2, 1)
+        self.__assertMinDistance(frontier, 2, 1)
 
-    def testDistanceList_DecreaseDistance(self):
-        frontier: Frontier = self.generateFrontierTestData()
+    def testFrontier_DecreaseDistance(self):
+        frontier: Frontier = self.getTestFrontierInstance()
         frontier.addVertex(4)
-        self.assertMinDistance(frontier, 4, 3)
+        self.__assertMinDistance(frontier, 4, 3)
         frontier.diminishDistance(4, 3, 2)
-        self.assertMinDistance(frontier, 4, 2)
+        self.__assertMinDistance(frontier, 4, 2)
 
 
-        
+class TestFrontierList(TestFrontierGeneral, unittest.TestCase):
+    @classmethod
+    def _initFrontierImpl(cls, graph: Graph, distances: Distance) -> Frontier:
+        return FrontierList(graph, distances)
