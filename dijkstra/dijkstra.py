@@ -38,14 +38,13 @@ class Dijkstra:
         self.__graph = GraphList(instanceFilePath)
         self.__predecessors = PredecessorList(self.__graph)
         self.__distances = DistanceList(self.__graph)
-        self.__frontier = FrontierList(self.__graph, self.__distances)
+        self.__frontier = FrontierBuckets(self.__graph, self.__distances)
         self.__duration = 0
 
     def run(self):
         startTime = time.time()
+        self.__distances.setDistance(self.__graph.getStartVertexId(), 0)
         self.__frontier.addVertex(self.__graph.getStartVertexId())
-        self.__frontier.diminishDistance(
-            self.__graph.getStartVertexId(), inf, 0)
         while(not self.__frontier.isEmpty()):
             # get next minimum vertex
             (currentVertexId, currentDistance) = self.__frontier.getMinDistanceVertex()

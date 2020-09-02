@@ -62,6 +62,7 @@ class TestFrontierGeneral(ABC):
         self.__assertMinDistance(frontier, None, inf)
         frontier.addVertex(3)
         self.__assertMinDistance(frontier, 3, 2)
+        frontier.removeVertex(3)
         frontier.addVertex(2)
         self.__assertMinDistance(frontier, 2, 1)
 
@@ -77,3 +78,9 @@ class TestFrontierList(TestFrontierGeneral, unittest.TestCase):
     @classmethod
     def _initFrontierImpl(cls, graph: Graph, distances: Distance) -> Frontier:
         return FrontierList(graph, distances)
+
+
+class TestFrontierBuckets(TestFrontierGeneral, unittest.TestCase):
+    @classmethod
+    def _initFrontierImpl(cls, graph: Graph, distances: Distance) -> Frontier:
+        return FrontierBuckets(graph, distances)
