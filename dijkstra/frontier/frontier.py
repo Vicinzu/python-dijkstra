@@ -10,15 +10,15 @@ class Frontier(ABC):
         pass
 
     @abstractmethod
+    def __len__(self) -> int:
+        pass
+
+    @abstractmethod
     def addVertex(self, vertexId: int):
         pass
 
     @abstractmethod
     def removeVertex(self, vertexId: int):
-        pass
-
-    @abstractmethod
-    def getLength(self) -> int:
         pass
 
     @abstractmethod

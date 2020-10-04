@@ -3,6 +3,7 @@ from typing import List
 
 from dijkstra.distance import Distance
 from dijkstra.graph import Graph
+from fibonacci_heap import *
 
 from .frontier import Frontier
 
@@ -21,15 +22,15 @@ class FrontierList(Frontier):
         self.__numVertex = graph.getNumVertex()
         self.__elements = []
         self.__distances = distances
+    
+    def __len__(self) -> int:
+        return len(self.__elements)
 
     def addVertex(self, vertexId: int):
         if vertexId is None or vertexId < 1 or vertexId > self.__numVertex:
             raise ValueError('Invalid vertexId: {}'.format(vertexId))
 
         self.__elements.append(vertexId)
-
-    def getLength(self) -> int:
-        return len(self.__elements)
 
     def isEmpty(self) -> bool:
         return not self.__elements
@@ -92,6 +93,13 @@ class FrontierBuckets(Frontier):
                     maxWeight = weight
         return int(maxWeight)
 
+    def __len__(self) -> int:
+        result: int = 0
+        for bucket in self.__buckets:
+            result += len(bucket)
+
+        return result
+
     def addVertex(self, vertexId: int):
         distance: int = int(self.__distances.getDistance(vertexId))
         bucketId: int = distance % self.__maxDistance
@@ -102,6 +110,9 @@ class FrontierBuckets(Frontier):
             self.__buckets[bucketId].append(vertexId)
 
     def removeVertex(self, vertexId: int):
+        if vertexId is None or vertexId < 1 or vertexId > self.__numVertex:
+            raise ValueError('Invalid vertexId: {}'.format(vertexId))
+
         distance: int = int(self.__distances.getDistance(vertexId))
         bucketId: int = distance % self.__maxDistance
 
@@ -110,15 +121,8 @@ class FrontierBuckets(Frontier):
         except ValueError:
             pass
 
-    def getLength(self) -> int:
-        result: int = 0
-        for bucket in self.__buckets:
-            result += len(bucket)
-
-        return result
-
     def isEmpty(self) -> bool:
-        return self.getLength() == 0
+        return len(self) == 0
 
     def getMinDistanceVertex(self) -> (int, float):
         i: int = 0
@@ -134,8 +138,79 @@ class FrontierBuckets(Frontier):
             return vertexId, self.__distances.getDistance(vertexId)
 
     def diminishDistance(self, vertexId: int, oldDistance: float, newDistance: float):
+        if vertexId is None or vertexId < 1 or vertexId > self.__numVertex:
+            raise ValueError('Invalid vertexId: {}'.format(vertexId))
+        elif newDistance is None:
+            raise ValueError('Invalid distance.')
+
         self.__distances.setDistance(vertexId, newDistance)
         if oldDistance != inf:
             self.__buckets[int(oldDistance) %
                            self.__maxDistance].remove(vertexId)
         self.__buckets[int(newDistance) % self.__maxDistance].append(vertexId)
+
+
+class FrontierFibonacci(Frontier):
+    __graph: Graph
+    __distances: Distance
+    __heap: FibonacciHeap[int]
+    __heapNodes: List[FibonacciHeapNode]
+
+    def __init__(self, graph: Graph, distances: Distance):
+        if graph is None:
+            raise ValueError('Invalid graph.')
+        elif distances is None:
+            raise ValueError('Invalid distances.')
+
+        self.__graph = graph
+        self.__distances = distances
+        self.__heap = FibonacciHeap()
+        self.__heapNodes = [None for n in range(graph.getNumVertex())]
+
+    def __len__(self) -> int:
+        return len(self.__heap)
+
+    def addVertex(self, vertexId: int):
+        if vertexId is None or vertexId < 1 or vertexId > self.__graph.getNumVertex():
+            raise ValueError('Invalid vertexId: {}'.format(vertexId))
+
+        if self.__getNode(vertexId) is None:
+            distance: int = int(self.__distances.getDistance(vertexId))
+            self.__heapNodes[vertexId-1] = self.__heap.add(distance, vertexId)
+
+    def removeVertex(self, vertexId: int):
+        if vertexId is None or vertexId < 1 or vertexId > self.__graph.getNumVertex():
+            raise ValueError('Invalid vertexId: {}'.format(vertexId))
+
+        if vertexId == self.__heap.getMin().getItem():
+            self.__heap.extractMin()
+        else:
+            raise NotImplementedError('Currently only the minimum can be removed.')
+
+    def isEmpty(self) -> bool:
+        return len(self) == 0
+
+    def getMinDistanceVertex(self) -> (int, float):
+        if self.isEmpty():
+            return (None, inf)
+
+        result: FibonacciHeapNode[int] = self.__heap.getMin()
+        return (result.getItem(), result.getPriority())
+
+    def diminishDistance(self, vertexId: int, oldDistance: float, newDistance: float):
+        if vertexId is None or vertexId < 1 or vertexId > self.__graph.getNumVertex():
+            raise ValueError('Invalid vertexId: {}'.format(vertexId))
+        elif newDistance is None:
+            raise ValueError('Invalid distance.')
+
+        node: FibonacciHeapNode[int] = self.__getNode(vertexId)
+        if node is not None:
+            self.__heap.decreaseKey(newDistance, node)
+
+        self.__distances.setDistance(vertexId, newDistance)
+
+    def __getNode(self, vertexId: int):
+        return self.__heapNodes[vertexId-1]
+
+    def __isNodeInFrontier(self, vertexId: int):
+        return self.__getNode(vertexId) is not None

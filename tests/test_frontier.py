@@ -29,9 +29,9 @@ class TestFrontierGeneral(ABC):
 
     def testFrontier_Length(self):
         frontier: Frontier = self.getTestFrontierInstance()
-        self.assertEqual(frontier.getLength(), 0)
+        self.assertEqual(len(frontier), 0)
         frontier.addVertex(1)
-        self.assertEqual(frontier.getLength(), 1)
+        self.assertEqual(len(frontier), 1)
 
     def testFrontier_Length(self):
         frontier: Frontier = self.getTestFrontierInstance()
@@ -41,16 +41,16 @@ class TestFrontierGeneral(ABC):
 
     def testFrontier_Add(self):
         frontier: Frontier = self.getTestFrontierInstance()
-        self.assertEqual(frontier.getLength(), 0)
+        self.assertEqual(len(frontier), 0)
         frontier.addVertex(1)
-        self.assertEqual(frontier.getLength(), 1)
+        self.assertEqual(len(frontier), 1)
 
     def testFrontier_Remove(self):
         frontier: Frontier = self.getTestFrontierInstance()
         frontier.addVertex(1)
-        self.assertEqual(frontier.getLength(), 1)
+        self.assertEqual(len(frontier), 1)
         frontier.removeVertex(1)
-        self.assertEqual(frontier.getLength(), 0)
+        self.assertEqual(len(frontier), 0)
 
     def __assertMinDistance(self, frontier, expectedVertexId, expectedDistance):
         minDistanceVertex: (int, float) = frontier.getMinDistanceVertex()
@@ -84,3 +84,8 @@ class TestFrontierBuckets(TestFrontierGeneral, unittest.TestCase):
     @classmethod
     def _initFrontierImpl(cls, graph: Graph, distances: Distance) -> Frontier:
         return FrontierBuckets(graph, distances)
+
+class TestFrontierFibonacci(TestFrontierGeneral, unittest.TestCase):
+    @classmethod
+    def _initFrontierImpl(cls, graph: Graph, distances: Distance) -> Frontier:
+        return FrontierFibonacci(graph, distances)

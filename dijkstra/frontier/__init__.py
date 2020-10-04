@@ -1,2 +1,2 @@
 from .frontier import Frontier
-from .frontier_impl import FrontierList, FrontierBuckets
+from .frontier_impl import FrontierList, FrontierBuckets, FrontierFibonacci
