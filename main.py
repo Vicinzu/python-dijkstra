@@ -1,7 +1,7 @@
 from dijkstra import *
 
 instanceFile: str = './instances/input.txt.1000'
-d: Dijkstra = Dijkstra(instanceFile)
+d: Dijkstra = Dijkstra(PredecessorList, DistanceList, FrontierList, instanceFile)
 d.run()
 
 print('Instance \'{}\':'.format(instanceFile))

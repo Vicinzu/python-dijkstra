@@ -1,13 +1,16 @@
 import time
 from dataclasses import dataclass
 from math import inf
-from typing import List, Tuple
+from typing import TypeVar, Type, List, Tuple
 
 from dijkstra.distance import *
 from dijkstra.frontier import *
 from dijkstra.graph import *
 from dijkstra.predecessor import *
 
+PredecessorType = TypeVar('PredecessorType', bound=Predecessor)
+DistanceType = TypeVar('DistanceType', bound=Distance)
+FrontierType = TypeVar('FrontierType', bound=Frontier)
 
 @dataclass
 class DijkstraSolution:
@@ -34,11 +37,11 @@ class Dijkstra:
     __frontier: Frontier
     __duration: time
 
-    def __init__(self, instanceFilePath: str):
+    def __init__(self, predecessorType: Type[PredecessorType], distanceType: Type[DistanceType], frontierType: Type[FrontierType], instanceFilePath: str):
         self.__graph = GraphList(instanceFilePath)
-        self.__predecessors = PredecessorList(self.__graph)
-        self.__distances = DistanceList(self.__graph)
-        self.__frontier = FrontierBuckets(self.__graph, self.__distances)
+        self.__predecessors = predecessorType(self.__graph)
+        self.__distances = distanceType(self.__graph)
+        self.__frontier = frontierType(self.__graph, self.__distances)
         self.__duration = 0
 
     def run(self):
@@ -48,7 +51,7 @@ class Dijkstra:
         while(not self.__frontier.isEmpty()):
             # get next minimum vertex
             (currentVertexId, currentDistance) = self.__frontier.getMinDistanceVertex()
-
+            
             # remove minimum vertex from frontier
             self.__frontier.removeVertex(currentVertexId)
 
